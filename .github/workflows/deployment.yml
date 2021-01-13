@@ -3,26 +3,65 @@ name: Deployment
 on: deployment
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build application
+        run: |
+          echo 'build application'
+  
   production:
+    needs: [build]
     runs-on: ubuntu-latest
     if: github.event.deployment.environment == 'production'
     steps:
       - name: Prodcution deploy
         run: |
           echo ${{ github.event.deployment.environment }}
+      - name: Set deployment status
+        if: always()
+        uses: rsotnychenko/deployment-status-update@0.2.0
+        with:
+          status: ${{ job.status }}
+          run_id: ${{ github.run_id }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   staging:
+    needs: [build]
     runs-on: ubuntu-latest
     if: github.event.deployment.environment == 'staging'
     steps:
       - name: Staging deploy
         run: |
           echo ${{ github.event.deployment.environment }}
+      - name: Set deployment status
+        if: always()
+        uses: rsotnychenko/deployment-status-update@0.2.0
+        with:
+          status: ${{ job.status }}
+          run_id: ${{ github.run_id }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   dev:
+    needs: [build]
     runs-on: ubuntu-latest
     if: github.event.deployment.environment == 'dev'
     steps:
       - name: Dev deploy
         run: |
           echo ${{ github.event.deployment.environment }}
+
+  update-deploy-status:
+    needs: [production, staging, dev]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Set deployment status
+        uses: rsotnychenko/deployment-status-update@0.2.0
+        with:
+          status: ${{ job.status }}
+          run_id: ${{ github.run_id }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
