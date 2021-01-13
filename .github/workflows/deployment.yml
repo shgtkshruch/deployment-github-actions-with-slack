@@ -9,12 +9,19 @@ jobs:
       - name: Build application
         run: |
           echo 'build application'
-  
+
   production:
     needs: [build]
     runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://example.com
     if: github.event.deployment.environment == 'production'
     steps:
+      - name: Maintenance on
+        if: github.event.deployment.task == 'maintenance'
+        run: |
+          echo 'Mainteannce on'
       - name: Prodcution deploy
         run: |
           echo ${{ github.event.deployment.environment }}
@@ -22,6 +29,9 @@ jobs:
   staging:
     needs: [build]
     runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://example.com
     if: github.event.deployment.environment == 'staging'
     steps:
       - name: Staging deploy
@@ -31,36 +41,42 @@ jobs:
   dev:
     needs: [build]
     runs-on: ubuntu-latest
+    environment:
+      name: dev
+      url: https://example.com
     if: github.event.deployment.environment == 'dev'
     steps:
       - name: Dev deploy
         run: |
           echo ${{ github.event.deployment.environment }}
 
-  update-deployment-status-in-progress:
-    needs: [production, staging, dev]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: Set deployment status to [in_progress]
-        uses: rsotnychenko/deployment-status-update@0.2.0
-        with:
-          status: in_progress
-          run_id: ${{ github.run_id }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
   maintenance-off:
-    needs: [update-deployment-status-in-progress]
+    needs: [production]
     runs-on: ubuntu-latest
-    if:  github.event.deployment.task == 'maintenance'
+    environment:
+      name: production
+      url: https://example.com
+    if: github.event.deployment.task == 'maintenance'
     steps:
       - name: Meintenance off
         run: |
           echo 'meintenance off'
 
+  update-final-deploy-status-for-dev:
+    needs: [dev, staging]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Set deployment status
+        uses: rsotnychenko/deployment-status-update@0.2.0
+        with:
+          status: ${{ job.status }}
+          run_id: ${{ github.run_id }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   update-final-deploy-status:
-    needs: [maintenance-off]
+    needs: [production]
     runs-on: ubuntu-latest
     if: always()
     steps:
