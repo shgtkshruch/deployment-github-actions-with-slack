@@ -1,0 +1,28 @@
+name: Deployment
+
+on: deployment
+
+jobs:
+  production:
+    runs-on: ubuntu-latest
+    if: github.event.deployment.environment == 'production'
+    steps:
+      - name: Prodcution deploy
+        run: |
+          echo ${{ github.event.deployment.environment }}
+
+  staging:
+    runs-on: ubuntu-latest
+    if: github.event.deployment.environment == 'staging'
+    steps:
+      - name: Staging deploy
+        run: |
+          echo ${{ github.event.deployment.environment }}
+
+  dev:
+    runs-on: ubuntu-latest
+    if: github.event.deployment.environment == 'dev'
+    steps:
+      - name: Dev deploy
+        run: |
+          echo ${{ github.event.deployment.environment }}
