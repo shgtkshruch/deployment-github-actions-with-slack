@@ -65,7 +65,6 @@ jobs:
   update-final-deploy-status-for-dev:
     needs: [dev, staging]
     runs-on: ubuntu-latest
-    if: always()
     steps:
       - name: Set deployment status
         uses: rsotnychenko/deployment-status-update@0.2.0
