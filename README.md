@@ -15,3 +15,8 @@ GitHub Actions to create deployment using GitHub API and slack integration
 ### Task
 - deploy
 - maintenace
+
+## References
+- [Environments - GitHub Docs](https://docs.github.com/en/actions/reference/environments)
+- [Workflow syntax for GitHub Actions - GitHub Docs](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions)
+- [What’s new in the GitHub and Slack integration - The GitHub Blog](https://github.blog/2019-07-29-whats-new-in-the-github-and-slack-integration/)
